@@ -9,46 +9,59 @@ public class RobotMovement : MonoBehaviour
 
     public float motorTorque = 150f;
     public float maxSpeed = 10f;
+    public float turnSpeed = 50f;  // Adjust for sharper turns
+    private Rigidbody rb;
+
+    void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+        rb.mass = 15f;  // Simulate realistic weight
+    }
 
     void Update()
     {
-        // Get player input for forward/backward movement
-        float moveInput = Input.GetAxis("Vertical");  // W/S or Up/Down arrows
-        MoveRobot(moveInput);
-        
-        // Get player input for turning
-        float turnInput = Input.GetAxis("Horizontal");  // A/D or Left/Right arrows
-        TurnRobot(turnInput);
+        float moveInput = Input.GetAxis("Vertical");  // Forward/Backward (W/S or Up/Down)
+        float turnInput = Input.GetAxis("Horizontal");  // Turning (A/D or Left/Right)
+
+        MoveRobot(moveInput, turnInput);
     }
 
-    public void MoveRobot(float moveInput)
+    public void MoveRobot(float moveInput, float turnInput)
     {
-        if (Mathf.Abs(moveInput) > 0.1f) // Apply movement only if significant input
+        if (rb.velocity.magnitude < maxSpeed || moveInput < 0)  // Prevent excessive speed
         {
+            // Apply torque for forward/backward movement
             frontLeftWheel.motorTorque = motorTorque * moveInput;
             frontRightWheel.motorTorque = motorTorque * moveInput;
             backLeftWheel.motorTorque = motorTorque * moveInput;
             backRightWheel.motorTorque = motorTorque * moveInput;
-            
-            // Remove brake force
-            frontLeftWheel.brakeTorque = 0f;
-            frontRightWheel.brakeTorque = 0f;
-            backLeftWheel.brakeTorque = 0f;
-            backRightWheel.brakeTorque = 0f;
+        }
+
+        // Implement Tank Drive: Turn by applying different power to wheels
+        frontLeftWheel.steerAngle = 0; // No need for steering angle in tank drive
+        frontRightWheel.steerAngle = 0;
+
+        frontLeftWheel.motorTorque += turnSpeed * turnInput;
+        backLeftWheel.motorTorque += turnSpeed * turnInput;
+        frontRightWheel.motorTorque -= turnSpeed * turnInput;
+        backRightWheel.motorTorque -= turnSpeed * turnInput;
+
+        // Apply brake only if no movement
+        if (Mathf.Abs(moveInput) < 0.1f && Mathf.Abs(turnInput) < 0.1f)
+        {
+            ApplyBrakes(100f);
         }
         else
         {
-            // Apply braking force when no input
-            frontLeftWheel.brakeTorque = 100f;
-            frontRightWheel.brakeTorque = 100f;
-            backLeftWheel.brakeTorque = 100f;
-            backRightWheel.brakeTorque = 100f;
+            ApplyBrakes(0f);
         }
     }
 
-    public void TurnRobot(float turnInput)
+    private void ApplyBrakes(float brakeForce)
     {
-        frontLeftWheel.steerAngle = 30f * turnInput;
-        frontRightWheel.steerAngle = 30f * turnInput;
+        frontLeftWheel.brakeTorque = brakeForce;
+        frontRightWheel.brakeTorque = brakeForce;
+        backLeftWheel.brakeTorque = brakeForce;
+        backRightWheel.brakeTorque = brakeForce;
     }
 }

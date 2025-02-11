@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-// Robot Builder - Handles Drag & Drop System
 public class RobotBuilder : MonoBehaviour
 {
     public Transform chassis;
@@ -12,7 +12,8 @@ public class RobotBuilder : MonoBehaviour
     {
         if (selectedPart != null)
         {
-            Instantiate(part, chassis.position, Quaternion.identity, chassis);
+            GameObject newPart = Instantiate(part, chassis.position, Quaternion.identity, chassis);
+            newPart.AddComponent<Rigidbody>();  // Add physics to simulate real-world weight
         }
     }
 }
