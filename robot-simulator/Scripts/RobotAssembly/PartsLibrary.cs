@@ -2,11 +2,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-// Parts Library - Manages Available Components
 public class PartsLibrary : MonoBehaviour
 {
     public List<GameObject> parts;
-    public Transform partsPanel;
+    public Transform partsPanel; // Assign in Unity Inspector
     public GameObject partButtonPrefab;
 
     void Start()
@@ -21,6 +20,6 @@ public class PartsLibrary : MonoBehaviour
 
     void SelectPart(GameObject part)
     {
-        FindObjectOfType<RobotBuilder>().selectedPart = part;
+        FindObjectOfType<RobotBuilder>().SelectPart(part);
     }
 }
